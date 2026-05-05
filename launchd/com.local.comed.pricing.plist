@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.local.comed.pricing</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/faiz/Downloads/Comed App/.venv/bin/python</string>
+		<string>/Users/faiz/Downloads/Comed App/comed_pricing_agent.py</string>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>/Users/faiz/Downloads/Comed App</string>
+	<key>StartInterval</key>
+	<integer>1800</integer>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardOutPath</key>
+	<string>/tmp/comed-agent.launchd.log</string>
+	<key>StandardErrorPath</key>
+	<string>/tmp/comed-agent.launchd.err.log</string>
+</dict>
+</plist>

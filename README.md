@@ -58,17 +58,59 @@ This project is **not** affiliated with ComEd or Exelon. It only reads the publi
 
 ## Run automatically on your computer
 
-Your machine needs to be on (and ideally awake) when the job runs.
+The Mac must be **awake** (or woken shortly before the run) for a local job to execute.
 
-**cron (Mac/Linux)** — edit with `crontab -e` and add (fix the path to your project):
+### macOS: `launchd` (recommended)
 
-```text
-*/10 * * * * cd "/path/to/Comed App" && .venv/bin/python comed_pricing_agent.py >> /tmp/comed-agent.log 2>&1
+`launchd` is the native scheduler: it survives logouts more predictably than `cron`, supports intervals and calendar rules, and fits the rest of the system.
+
+1. Edit **`launchd/com.local.comed.pricing.plist`** if your project is not at  
+   `/Users/faiz/Downloads/Comed App` — update **both** `ProgramArguments` paths and `WorkingDirectory` (required so `.env` loads).
+
+2. Install and start the agent (run from anywhere; adjust the plist path if yours differs):
+
+   ```bash
+   PLIST_SRC="/Users/faiz/Downloads/Comed App/launchd/com.local.comed.pricing.plist"
+   PLIST_DST="$HOME/Library/LaunchAgents/com.local.comed.pricing.plist"
+   cp "$PLIST_SRC" "$PLIST_DST"
+   launchctl bootout "gui/$(id -u)" "$PLIST_DST" 2>/dev/null || true
+   launchctl bootstrap "gui/$(id -u)" "$PLIST_DST"
+   ```
+
+3. **Logs:** `StandardOutPath` / `StandardErrorPath` are **`/tmp/comed-agent.launchd.log`** and **`/tmp/comed-agent.launchd.err.log`**.
+
+4. **Stop / uninstall:**
+
+   ```bash
+   launchctl bootout "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.local.comed.pricing.plist"
+   rm -f "$HOME/Library/LaunchAgents/com.local.comed.pricing.plist"
+   ```
+
+5. **Change the 30‑minute interval:** edit `StartInterval` in the plist (seconds), then run `bootout` + `bootstrap` again.
+
+**Optional — wake the Mac before checks:** if the machine sleeps, schedule a wake a few minutes before you care about price (example only; pick a time that suits you):
+
+```bash
+sudo pmset repeat wakeorpoweron MTWRFSU 07:25:00
 ```
 
-**Windows:** use **Task Scheduler** to run the same `python comed_pricing_agent.py` from the project folder with the venv’s `python.exe`, on a repeating interval.
+See `man pmset` for `repeat` / `wakeorpoweron` and your hardware limits. You can combine this with `launchd` so the job runs after wake.
 
-The script writes `.comed_notifier_state.json` in the project folder so you get **at most one alert per local clock hour** when price stays under the threshold (avoids spam if you run every few minutes).
+### cron (Mac/Linux)
+
+If you prefer cron, add (fix the path):
+
+```text
+*/30 * * * * cd "/path/to/Comed App" && .venv/bin/python comed_pricing_agent.py >> /tmp/comed-agent.log 2>&1
+```
+
+### Windows
+
+Use **Task Scheduler** to run `comed_pricing_agent.py` with the venv’s `python.exe` from the project folder, on a repeating interval.
+
+---
+
+The script writes `.comed_notifier_state.json` in the project folder so you get **at most one alert per local clock hour** when price stays under the threshold (avoids spam if you run often).
 
 ---
 
@@ -92,6 +134,7 @@ You can trigger a manual run from the **Actions** tab (**Run workflow**).
 | `.env` | Your real config (gitignored) |
 | `.comed_notifier_state.json` | Last-alert bookkeeping (gitignored) |
 | `requirements.txt` | Python dependencies |
+| `launchd/com.local.comed.pricing.plist` | macOS LaunchAgent (edit paths, then copy to `~/Library/LaunchAgents/`) |
 
 ---
 

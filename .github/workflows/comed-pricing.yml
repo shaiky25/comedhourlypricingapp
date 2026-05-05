@@ -9,8 +9,8 @@ name: ComEd pricing alerts
 
 on:
   schedule:
-    # Every 10 minutes (UTC). ComEd window / dedup is handled in the script.
-    - cron: "*/10 * * * *"
+    # Every 30 minutes (UTC). ComEd window / dedup is handled in the script.
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
 
 concurrency:
