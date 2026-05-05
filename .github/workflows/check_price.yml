@@ -1,0 +1,26 @@
+name: Fetch ComEd Price
+on:
+  schedule:
+    - cron: '0,30 10-23 * * *' # 5 AM to 6 PM CST (UTC-5 offset)
+  workflow_dispatch: # Allows you to run it manually for testing
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+jobs:
+  check-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::338481388333:role/GitHubAction-ComEd-Trigger
+          aws-region: us-east-1
+
+      - name: Run Fetch Script
+        run: |
+          python fetch_price.py
