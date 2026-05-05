@@ -16,7 +16,7 @@ def trigger_lambda(price):
     
     # Trigger the Lambda we built earlier
     client.invoke(
-        FunctionName='ComEdPriceChecker',
+        FunctionName='ComEd_Price_Logger',
         InvocationType='Event', # Async trigger
         Payload=json.dumps(payload)
     )
