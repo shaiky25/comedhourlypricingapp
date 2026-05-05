@@ -3,7 +3,7 @@ import boto3
 import json
 
 def get_price():
-    url = "https://hourlypricing.comed.com/api?type=currenthour"
+    url = "https://hourlypricing.comed.com/api?type=currenthouraverage"
     headers = {'User-Agent': 'Mozilla/5.0'}
     
     response = requests.get(url, headers=headers)
