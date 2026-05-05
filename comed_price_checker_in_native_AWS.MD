@@ -68,7 +68,7 @@ SNS_TOPIC_ARN: (The ARN from Step 1)
 Use the following code:
 
 ```python
-  import json, urllib3, logging, boto3, os
+import json, urllib3, logging, boto3, os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
