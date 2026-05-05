@@ -1,12 +1,15 @@
+name: Fetch ComEd Price
+
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: truename: Fetch ComEd Price
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 on:
   schedule:
-    - cron: '0,30 10-23 * * *' # 5 AM to 6 PM CST (UTC-5 offset)
-  workflow_dispatch: # Allows you to run it manually for testing
+    - cron: '0,30 10-23,0-4 * * *' # Adjusted to cover 5 AM - Midnight CST
+  workflow_dispatch:
 
 permissions:
-  id-token: write # Required for OIDC
+  id-token: write
   contents: read
 
 jobs:
@@ -16,12 +19,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests boto3
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::338481388333:role/GitHubAction-ComEd-Trigger
           aws-region: us-east-1
-
+    
       - name: Run Fetch Script
-        run: |
-          python fetch_price.py
+        run: python fetch_price.py
