@@ -1,13 +1,27 @@
 import requests
+import boto3
+import json
 
-url = "https://hourlypricing.comed.com/api?type=currenthouraverage"
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0 Safari/537.36',
-    'Accept': 'application/json'
-}
+def get_price():
+    url = "https://hourlypricing.comed.com/api?type=currenthouraverage"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    return float(data[0]['price'])
 
-response = requests.get(url, headers=headers)
+def trigger_lambda(price):
+    client = boto3.client('lambda', region_name='us-east-1')
+    payload = {"current_price": price}
+    
+    # Trigger the Lambda we built earlier
+    client.invoke(
+        FunctionName='ComEdPriceChecker',
+        InvocationType='Event', # Async trigger
+        Payload=json.dumps(payload)
+    )
+    print(f"Successfully pushed price {price} to AWS Lambda.")
 
-print(f"Status: {response.status_code}")
-print(f"Headers: {response.headers}")
-print(f"Body: {response.text}")
+if __name__ == "__main__":
+    current_price = get_price()
+    trigger_lambda(current_price)
