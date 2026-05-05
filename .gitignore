@@ -1,3 +1,4 @@
 .env
 .venv/
 .comed_notifier_state.json
+__pycache__/
